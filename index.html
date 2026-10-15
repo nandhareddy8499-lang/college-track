@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CollegeTrack - Student Attendance System</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap');
+body{font-family:'Plus Jakarta Sans',sans-serif}
+.glass{backdrop-filter:blur(16px); background:rgba(255,255,255,0.9)}
+.login-bg{background: radial-gradient(circle at 20% 30%, #4f46e5 0%, #7c3aed 30%, #0f172a 100%)}
+</style>
+</head>
+<body class="bg-slate-50">
+
+<!-- LOGIN PAGE -->
+<div id="loginPage" class="min-h-screen login-bg flex items-center justify-center p-4">
+<div class="w-full max-w-5xl grid md:grid-cols-2 bg-white rounded-[2rem] overflow-hidden shadow-2xl">
+<div class="p-8 md:p-12 bg-slate-900 text-white relative hidden md:block">
+<div class="absolute top-0 left-0 w-full h-full opacity-20"><i class="fas fa-graduation-cap text-[300px] absolute -right-20 -top-20"></i></div>
+<div class="relative z-10">
+<h1 class="text-4xl font-bold mb-4">CollegeTrack Pro</h1>
+<p class="text-slate-300 mb-8">Official attendance & performance system for colleges. Trusted by 50+ colleges.</p>
+<div class="space-y-4 mt-20">
+<div class="flex items-center gap-3"><div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center"><i class="fas fa-shield"></i></div><div><p class="font-semibold">Secure & Verified</p><p class="text-xs text-slate-400">College ID verified data</p></div></div>
+<div class="flex items-center gap-3"><div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center"><i class="fas fa-chart-line"></i></div><div><p class="font-semibold">Real-time Tracking</p><p class="text-xs text-slate-400">Live attendance percentage</p></div></div>
+</div>
+</div>
+</div>
+
+<div class="p-8 md:p-10">
+<h2 class="text-2xl font-bold text-slate-900">Welcome back</h2>
+<p class="text-slate-500 text-sm mb-6">Sign in to see your attendance</p>
+
+<div class="flex bg-slate-100 p-1 rounded-full mb-6 text-sm">
+<button onclick="switchTab('id')" id="tab-id" class="flex-1 py-2 rounded-full bg-white shadow font-semibold">Student ID</button>
+<button onclick="switchTab('mobile')" id="tab-mobile" class="flex-1 py-2 rounded-full text-slate-500">Mobile</button>
+<button onclick="switchTab('gmail')" id="tab-gmail" class="flex-1 py-2 rounded-full text-slate-500">Gmail</button>
+</div>
+
+<!-- ID LOGIN -->
+<div id="login-id">
+<div class="space-y-4">
+<input id="searchId" type="text" placeholder="Enter Roll No (ex: 21CS001)" class="w-full px-4 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none">
+<input id="searchName" type="text" placeholder="Or Enter Full Name" class="w-full px-4 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none">
+<button onclick="loginWithId()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3.5 rounded-xl font-bold transition"><i class="fas fa-search mr-2"></i> View My Attendance</button>
+<p class="text-xs text-center text-slate-400">Try demo: 21CS001 to 21CS010</p>
+</div>
+</div>
+
+<!-- MOBILE LOGIN -->
+<div id="login-mobile" class="hidden">
+<div class="space-y-4">
+<div class="flex gap-2"><span class="px-4 py-3.5 bg-slate-100 rounded-xl border">+91</span><input id="mobileNo" type="tel" placeholder="98765 43210" class="flex-1 px-4 py-3.5 rounded-xl border border-slate-200 outline-none"></div>
+<button id="sendOtpBtn" onclick="sendOtp()" class="w-full bg-slate-900 text-white py-3.5 rounded-xl font-bold">Send OTP</button>
+<div id="otpBox" class="hidden"><input id="otpInput" type="text" placeholder="Enter OTP - Use 123456" class="w-full px-4 py-3.5 rounded-xl border-2 border-indigo-500 outline-none text-center tracking-[0.5em]"><button onclick="verifyOtp()" class="w-full mt-3 bg-indigo-600 text-white py-3.5 rounded-xl font-bold">Verify & Login</button></div>
+</div>
+</div>
+
+<!-- GMAIL LOGIN -->
+<div id="login-gmail" class="hidden">
+<div class="space-y-3">
+<button onclick="loginWithGmail()" class="w-full border border-slate-200 py-3.5 rounded-xl font-semibold flex items-center justify-center gap-3 hover:bg-slate-50"><img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5"> Continue with Google</button>
+<input id="gmailInput" type="email" placeholder="college email - ex: student@college.edu" class="w-full px-4 py-3.5 rounded-xl border border-slate-200 outline-none">
+<button onclick="loginWithGmail()" class="w-full bg-indigo-600 text-white py-3.5 rounded-xl font-bold">Sign in with College Email</button>
+</div>
+</div>
+
+<div id="loginError" class="mt-4 p-3 bg-red-50 text-red-600 text-sm rounded-xl hidden"></div>
+</div>
+</div>
+</div>
+
+<!-- MAIN DASHBOARD -->
+<div id="dashboard" class="hidden min-h-screen">
+<header class="bg-white border-b sticky top-0 z-20">
+<div class="max-w-7xl mx-auto px-4 md:px-6 py-3 flex justify-between items-center">
+<div class="flex items-center gap-3"><div class="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center text-white"><i class="fas fa-graduation-cap"></i></div><span class="font-bold">CollegeTrack</span><span class="hidden md:inline text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full ml-2">LIVE</span></div>
+<div class="flex items-center gap-3"><div class="text-right hidden md:block"><p id="userDisplayName" class="text-sm font-bold">Student</p><p id="userDisplayId" class="text-xs text-slate-500">21CS001</p></div><div class="w-9 h-9 bg-slate-200 rounded-full flex items-center justify-center"><i class="fas fa-user"></i></div><button onclick="logout()" class="text-slate-400 hover:text-red-500"><i class="fas fa-sign-out-alt"></i></button></div>
+</div>
+</header>
+
+<main class="max-w-7xl mx-auto px-4 md:px-6 py-6">
+<!-- SEARCH BAR FOR TEACHERS -->
+<div class="bg-indigo-600 rounded-[1.5rem] p-6 md:p-8 text-white mb-6 relative overflow-hidden">
+<div class="relative z-10 grid md:grid-cols-3 gap-6 items-center">
+<div class="md:col-span-2"><h2 class="text-2xl md:text-3xl font-bold mb-2">Check Any Student Attendance</h2><p class="text-indigo-100 text-sm mb-4">Enter Roll No or Name to get real-time percentage across all subjects</p><div class="flex gap-2"><input id="globalSearch" type="text" placeholder="Search by ID or Name..." class="flex-1 px-5 py-3 rounded-full text-slate-900 outline-none"><button onclick="globalSearchStudent()" class="bg-slate-900 px-6 py-3 rounded-full font-bold">Search</button></div></div>
+<div class="bg-white/10 backdrop-blur rounded-2xl p-4"><p class="text-sm text-indigo-100">Overall College Avg</p><p class="text-3xl font-bold">84.2%</p><p class="text-xs text-indigo-200 mt-1"><i class="fas fa-arrow-up"></i> +2.4% this month</p></div>
+</div>
+</div>
+
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+<div class="bg-white p-5 rounded-2xl border"><p class="text-xs text-slate-500 uppercase font-semibold">Attendance %</p><p id="attPercent" class="text-3xl font-bold mt-1">0%</p><span id="attBadge" class="text-xs px-2 py-1 rounded-full mt-2 inline-block">-</span></div>
+<div class="bg-white p-5 rounded-2xl border"><p class="text-xs text-slate-500 uppercase font-semibold">Avg Marks</p><p id="avgMarks" class="text-3xl font-bold mt-1">0</p><p class="text-xs text-slate-400 mt-2">Out of 100</p></div>
+<div class="bg-white p-5 rounded-2xl border"><p class="text-xs text-slate-500 uppercase font-semibold">Assignments</p><p id="assignDone" class="text-3xl font-bold mt-1">0/0</p><p class="text-xs text-green-600 mt-2">Submitted</p></div>
+<div class="bg-white p-5 rounded-2xl border"><p class="text-xs text-slate-500 uppercase font-semibold">Status</p><p id="riskStatus" class="text-xl font-bold mt-1">Good</p><p id="riskDesc" class="text-xs text-slate-500 mt-2">No action needed</p></div>
+</div>
+
+<div class="grid md:grid-cols-3 gap-6">
+<div class="md:col-span-2 bg-white rounded-2xl border p-6"><h3 class="font-bold mb-4">Subject-wise Attendance</h3><canvas id="attChart" height="200"></canvas></div>
+<div class="bg-white rounded-2xl border p-6"><h3 class="font-bold mb-4">Performance Trend</h3><canvas id="marksChart" height="200"></canvas><div class="mt-6 p-4 bg-amber-50 rounded-xl border border-amber-200"><p class="text-sm font-bold text-amber-800"><i class="fas fa-exclamation-triangle mr-2"></i>Support Needed?</p><p id="supportText" class="text-xs text-amber-700 mt-1">You are doing great!</p></div></div>
+</div>
+
+<div class="mt-6 bg-white rounded-2xl border overflow-hidden">
+<div class="p-6 flex justify-between items-center"><h3 class="font-bold">All Students - Quick View</h3><span class="text-xs bg-slate-100 px-3 py-1 rounded-full">Click any row to view details</span></div>
+<div class="overflow-x-auto"><table class="w-full text-sm"><thead class="bg-slate-50 text-xs text-slate-500 uppercase"><tr><th class="p-3 text-left">Student</th><th class="p-3">Roll No</th><th class="p-3">Attendance</th><th class="p-3">Marks</th><th class="p-3">Action</th></tr></thead><tbody id="studentTable"></tbody></table></div>
+</div>
+</main>
+</div>
+
+<script>
+const students = [
+ {id:"21CS001", name:"Kishore Kumar", mobile:"9876543210", email:"kishore@college.edu", attendance:{Maths:82, Science:78, English:90, DBMS:65, OS:88}, marks:{Maths:78, Science:82, English:85, DBMS:60, OS:75}, assignments:8, totalAssign:10},
+ {id:"21CS002", name:"Ananya Reddy", mobile:"9876543211", email:"ananya@college.edu", attendance:{Maths:95, Science:92, English:88, DBMS:94, OS:90}, marks:{Maths:92, Science:89, English:90, DBMS:88, OS:91}, assignments:10, totalAssign:10},
+ {id:"21CS003", name:"Rahul Varma", mobile:"9876543212", email:"rahul@college.edu", attendance:{Maths:45, Science:50, English:60, DBMS:40, OS:55}, marks:{Maths:35, Science:38, English:42, DBMS:30, OS:40}, assignments:3, totalAssign:10},
+ {id:"21CS004", name:"Sneha Patel", mobile:"9876543213", email:"sneha@college.edu", attendance:{Maths:76, Science:80, English:75, DBMS:70, OS:78}, marks:{Maths:65, Science:70, English:68, DBMS:62, OS:72}, assignments:7, totalAssign:10},
+ {id:"21CS005", name:"Arjun Rao", mobile:"9876543214", email:"arjun@college.edu", attendance:{Maths:68, Science:65, English:70, DBMS:60, OS:66}, marks:{Maths:55, Science:58, English:60, DBMS:52, OS:57}, assignments:5, totalAssign:10},
+ {id:"21CS006", name:"Priya Sharma", mobile:"9876543215", email:"priya@college.edu", attendance:{Maths:88, Science:85, English:90, DBMS:82, OS:87}, marks:{Maths:80, Science:85, English:88, DBMS:78, OS:82}, assignments:9, totalAssign:10},
+ {id:"21CS007", name:"Vikram Singh", mobile:"9876543216", email:"vikram@college.edu", attendance:{Maths:55, Science:60, English:58, DBMS:50, OS:52}, marks:{Maths:45, Science:48, English:50, DBMS:40, OS:46}, assignments:4, totalAssign:10},
+ {id:"21CS008", name:"Divya Nair", mobile:"9876543217", email:"divya@college.edu", attendance:{Maths:92, Science:95, English:94, DBMS:90, OS:93}, marks:{Maths:95, Science:94, English:96, DBMS:90, OS:92}, assignments:10, totalAssign:10},
+ {id:"21CS009", name:"Karthik M", mobile:"9876543218", email:"karthik@college.edu", attendance:{Maths:70, Science:72, English:68, DBMS:74, OS:71}, marks:{Maths:62, Science:65, English:60, DBMS:68, OS:64}, assignments:6, totalAssign:10},
+ {id:"21CS010", name:"Lakshmi Devi", mobile:"9876543219", email:"lakshmi@college.edu", attendance:{Maths:80, Science:78, English:82, DBMS:76, OS:79}, marks:{Maths:72, Science:75, English:78, DBMS:70, OS:74}, assignments:8, totalAssign:10},
+];
+let currentStudent = students[0];
+let attChartInst, marksChartInst;
+
+function switchTab(t){
+ ['id','mobile','gmail'].forEach(k=>{
+  document.getElementById('tab-'+k).className = k===t? 'flex-1 py-2 rounded-full bg-white shadow font-semibold' : 'flex-1 py-2 rounded-full text-slate-500';
+  document.getElementById('login-'+k).classList.toggle('hidden', k!==t);
+ });
+}
+function loginWithId(){
+ let idVal = document.getElementById('searchId').value.trim().toUpperCase();
+ let nameVal = document.getElementById('searchName').value.trim().toLowerCase();
+ let found = students.find(s => s.id===idVal || s.name.toLowerCase().includes(nameVal));
+ if(!idVal &&!nameVal){ showError("Enter Roll No or Name bro"); return; }
+ if(!found){ showError("Student not found! Try 21CS001 to 21CS010"); return; }
+ currentStudent = found; openDashboard();
+}
+function sendOtp(){
+ let mob = document.getElementById('mobileNo').value;
+ if(mob.length < 8){ showError("Enter valid mobile number"); return; }
+ document.getElementById('otpBox').classList.remove('hidden');
+ document.getElementById('sendOtpBtn').innerText = "OTP Sent! (Use 123456)";
+ document.getElementById('sendOtpBtn').classList.add('bg-green-600');
+}
+function verifyOtp(){
+ if(document.getElementById('otpInput').value!== "123456"){ showError("Wrong OTP! Use 123456 for demo"); return; }
+ currentStudent = students.find(s => s.mobile === document.getElementById('mobileNo').value) || students[0];
+ openDashboard();
+}
+function loginWithGmail(){
+ let email = document.getElementById('gmailInput').value.toLowerCase();
+ let found = students.find(s => email && s.email.toLowerCase().includes(email.split('@')[0])) || students[0];
+ currentStudent = found; openDashboard();
+}
+function showError(msg){
+ let el = document.getElementById('loginError'); el.innerText = msg; el.classList.remove('hidden'); setTimeout(()=>el.classList.add('hidden'),4000);
+}
+function openDashboard(){
+ document.getElementById('loginPage').classList.add('hidden');
+ document.getElementById('dashboard').classList.remove('hidden');
+ loadStudentData(currentStudent);
+ buildTable();
+}
+function loadStudentData(s){
+ document.getElementById('userDisplayName').innerText = s.name;
+ document.getElementById('userDisplayId').innerText = s.id;
+ let attVals = Object.values(s.attendance);
+ let avgAtt = Math.round(attVals.reduce((a,b)=>a+b,0)/attVals.length);
+ let marksVals = Object.values(s.marks);
+ let avgM = Math.round(marksVals.reduce((a,b)=>a+b,0)/marksVals.length);
+ document.getElementById('attPercent').innerText = avgAtt + "%";
+ document.getElementById('avgMarks').innerText = avgM;
+ document.getElementById('assignDone').innerText = s.assignments + "/" + s.totalAssign;
+ let badge = document.getElementById('attBadge');
+ if(avgAtt < 60){ badge.innerText="Critical"; badge.className="text-xs px-2 py-1 rounded-full bg-red-100 text-red-700"; }
+ else if(avgAtt < 75){ badge.innerText="Low - Needs Support"; badge.className="text-xs px-2 py-1 rounded-full bg-amber-100 text-amber-700"; }
+ else{ badge.innerText="Good"; badge.className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-700"; }
+ let status = document.getElementById('riskStatus'), desc = document.getElementById('riskDesc'), support = document.getElementById('supportText');
+ if(avgAtt < 75 || avgM < 40){
+  status.innerText="At Risk"; status.className="text-xl font-bold mt-1 text-red-600";
+  desc.innerText="Needs additional support"; support.innerText = `${s.name} has low attendance (${avgAtt}%) or low marks (${avgM}%). Please contact mentor.`;
+ } else {
+  status.innerText="Good"; status.className="text-xl font-bold mt-1 text-green-600";
+  desc.innerText="No action needed"; support.innerText = `${s.name} is doing great! Keep it up. Attendance ${avgAtt}%, Marks ${avgM}%`;
+ }
+ drawCharts(s);
+}
+function drawCharts(s){
+ let ctx1 = document.getElementById('attChart').getContext('2d');
+ if(attChartInst) attChartInst.destroy();
+ attChartInst = new Chart(ctx1,{type:'bar', data:{labels:Object.keys(s.attendance), datasets:[{label:'Attendance %', data:Object.values(s.attendance), backgroundColor:['#4f46e5','#06b6d4','#10b981','#f59e0b','#ef4444']}]}, options:{responsive:true, plugins:{legend:{display:false}}}});
+ let ctx2 = document.getElementById('marksChart').getContext('2d');
+ if(marksChartInst) marksChartInst.destroy();
+ marksChartInst = new Chart(ctx2,{type:'line', data:{labels:Object.keys(s.marks), datasets:[{label:'Marks', data:Object.values(s.marks), borderColor:'#4f46e5', backgroundColor:'rgba(79,70,229,0.1)', fill:true, tension:0.4}]}, options:{responsive:true, plugins:{legend:{display:false}}}});
+}
+function buildTable(){
+ let html="";
+ students.forEach(s=>{
+  let avg = Math.round(Object.values(s.attendance).reduce((a,b)=>a+b,0)/5);
+  html+=`<tr class="border-b hover:bg-slate-50 cursor-pointer" onclick="selectStudent('${s.id}')"><td class="p-3 font-semibold">${s.name}</td><td class="p-3">${s.id}</td><td class="p-3"><span class="px-2 py-1 rounded-full text-xs ${avg<75?'bg-red-100 text-red-700':'bg-green-100 text-green-700'}">${avg}%</span></td><td class="p-3">${Math.round(Object.values(s.marks).reduce((a,b)=>a+b,0)/5)}</td><td class="p-3 text-indigo-600">View</td></tr>`;
+ });
+ document.getElementById('studentTable').innerHTML=html;
+}
+function selectStudent(id){ currentStudent = students.find(s=>s.id===id); loadStudentData(currentStudent); window.scrollTo(0,0); }
+function globalSearchStudent(){ let q=document.getElementById('globalSearch').value.trim(); document.getElementById('searchId').value=q; document.getElementById('searchName').value=q; let f=students.find(s=>s.id.toLowerCase()===q.toLowerCase() || s.name.toLowerCase().includes(q.toLowerCase())); if(f){currentStudent=f; if(document.getElementById('dashboard').classList.contains('hidden')){openDashboard();}else{loadStudentData(f);} } else { alert("Not found! Try 21CS001"); } }
+function logout(){ document.getElementById('dashboard').classList.add('hidden'); document.getElementById('loginPage').classList.remove('hidden'); }
+</script>
+</body>
+</html>
